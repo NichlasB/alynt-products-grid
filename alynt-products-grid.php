@@ -5,12 +5,16 @@
  * Description: A WooCommerce mobile-responsive products grid with advanced filtering via shortcode.
  * Version: 1.0.1
  * Author: Alynt
- * Text Domain: alynt-products-grid
- * Domain Path: /languages
  * Requires at least: 5.0
+ * Requires PHP: 7.4
  * Tested up to: 6.8.2
  * WC requires at least: 3.0
  * WC tested up to: 10.0.4
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: alynt-products-grid
+ * Domain Path: /languages
+ * GitHub Plugin URI: NichlasB/alynt-products-grid
  */
 
 // Prevent direct access
@@ -23,6 +27,12 @@ define('ALYNT_PG_VERSION', '1.0.1');
 define('ALYNT_PG_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ALYNT_PG_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ALYNT_PG_PLUGIN_BASENAME', plugin_basename(__FILE__));
+
+require_once ALYNT_PG_PLUGIN_DIR . 'includes/class-activator.php';
+require_once ALYNT_PG_PLUGIN_DIR . 'includes/class-deactivator.php';
+
+register_activation_hook(__FILE__, array('ALYNT_PG_Activator', 'activate'));
+register_deactivation_hook(__FILE__, array('ALYNT_PG_Deactivator', 'deactivate'));
 
 // Check if WooCommerce is active
 if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
@@ -72,11 +82,26 @@ class Alynt_Products_Grid {
         // Only enqueue if shortcode is present on the page
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'alynt_products_grid')) {
+            $style_path = 'assets/css/style.css';
+            $style_file = ALYNT_PG_PLUGIN_DIR . $style_path;
+            $script_path = 'assets/js/script.js';
+            $script_file = ALYNT_PG_PLUGIN_DIR . $script_path;
+
+            if (file_exists(ALYNT_PG_PLUGIN_DIR . 'assets/dist/frontend/index.css')) {
+                $style_path = 'assets/dist/frontend/index.css';
+                $style_file = ALYNT_PG_PLUGIN_DIR . $style_path;
+            }
+
+            if (file_exists(ALYNT_PG_PLUGIN_DIR . 'assets/dist/frontend/index.js')) {
+                $script_path = 'assets/dist/frontend/index.js';
+                $script_file = ALYNT_PG_PLUGIN_DIR . $script_path;
+            }
+
             wp_enqueue_style(
                 'alynt-pg-style',
-                ALYNT_PG_PLUGIN_URL . 'assets/css/style.css',
+                ALYNT_PG_PLUGIN_URL . $style_path,
                 array(),
-                ALYNT_PG_VERSION . '-' . time() // Cache busting
+                file_exists($style_file) ? (string) filemtime($style_file) : ALYNT_PG_VERSION // Cache busting
             );
             
             // Enqueue WooCommerce add to cart script
@@ -84,9 +109,9 @@ class Alynt_Products_Grid {
             
             wp_enqueue_script(
                 'alynt-pg-script',
-                ALYNT_PG_PLUGIN_URL . 'assets/js/script.js',
+                ALYNT_PG_PLUGIN_URL . $script_path,
                 array('jquery', 'wc-add-to-cart'),
-                ALYNT_PG_VERSION . '-' . time(), // Cache busting
+                file_exists($script_file) ? (string) filemtime($script_file) : ALYNT_PG_VERSION, // Cache busting
                 true
             );
             

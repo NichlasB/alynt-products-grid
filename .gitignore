@@ -14,3 +14,18 @@ node_modules/
 
 # Logs
 *.log
+
+# PHP dependencies
+vendor/
+composer.phar
+
+# Build output
+assets/dist/
+coverage/
+
+# Environment
+.env
+.env.local
+
+# Source maps
+*.map
