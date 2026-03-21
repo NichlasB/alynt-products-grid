@@ -46,7 +46,12 @@ if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins',
 	add_action(
 		'admin_notices',
 		static function () {
-			echo wp_kses_post( '<div class="notice notice-error"><p><strong>Alynt Products Grid</strong> requires WooCommerce to be installed and active.</p></div>' );
+			echo wp_kses_post(
+				sprintf(
+					'<div class="notice notice-error"><p>%s</p></div>',
+					esc_html__( 'Alynt Products Grid requires WooCommerce to be installed and active.', 'alynt-products-grid' )
+				)
+			);
 		}
 	);
 	return;

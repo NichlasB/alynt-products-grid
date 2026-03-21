@@ -170,7 +170,7 @@ export class AlyntProductsGrid {
                 updateUrlFromState(this);
             })
             .fail(() => {
-                showNotification(this, 'Failed to load products', 'error');
+                showNotification(this, (window.alynt_pg_ajax || {}).i18n_failed_to_load || '', 'error');
             })
             .always(() => {
                 hideSpinner(this);

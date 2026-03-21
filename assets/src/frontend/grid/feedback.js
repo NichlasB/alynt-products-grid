@@ -9,9 +9,14 @@ export function hideSpinner(instance) {
 }
 
 export function updateResultsCount(instance, data) {
+    const i18n = window.alynt_pg_ajax || {};
     const start = (data.current_page - 1) * instance.settings.perPage + 1;
     const end = Math.min(data.current_page * instance.settings.perPage, data.total);
-    const text = `${start} - ${end} of ${data.total} products`;
+    const template = Number(data.total) === 1 ? i18n.i18n_results_count_singular : i18n.i18n_results_count_plural;
+    const text = (template || '')
+        .replace('%1$s', start)
+        .replace('%2$s', end)
+        .replace('%3$s', data.total);
 
     instance.container.find('.alynt-pg-showing').text(text);
 }

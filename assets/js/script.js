@@ -180,7 +180,7 @@
                     }
                 })
                 .fail(() => {
-                    this.showNotification('Failed to load products', 'error');
+                    this.showNotification((window.alynt_pg_ajax || {}).i18n_failed_to_load || '', 'error');
                 })
                 .always(() => {
                     this.hideSpinner();
@@ -241,6 +241,8 @@
         }
 
         generatePaginationHtml(data) {
+            const i18n = window.alynt_pg_ajax || {};
+
             if (data.pages <= 1) {
                 return '<div class="alynt-pg-pagination"></div>';
             }
@@ -249,7 +251,7 @@
             
             // Previous button
             if (data.current_page > 1) {
-                html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}">« Previous</button>`;
+                html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}">${i18n.i18n_previous || ''}</button>`;
             }
             
             // Page numbers
@@ -277,7 +279,7 @@
             
             // Next button
             if (data.current_page < data.pages) {
-                html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}">Next »</button>`;
+                html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}">${i18n.i18n_next || ''}</button>`;
             }
             
             html += '</div>';
@@ -285,9 +287,14 @@
         }
 
         updateResultsCount(data) {
+            const i18n = window.alynt_pg_ajax || {};
             const start = (data.current_page - 1) * this.settings.perPage + 1;
             const end = Math.min(data.current_page * this.settings.perPage, data.total);
-            const text = `${start} - ${end} of ${data.total} products`;
+            const template = Number(data.total) === 1 ? i18n.i18n_results_count_singular : i18n.i18n_results_count_plural;
+            const text = (template || '')
+                .replace('%1$s', start)
+                .replace('%2$s', end)
+                .replace('%3$s', data.total);
             
             this.container.find('.alynt-pg-showing').text(text);
         }
@@ -399,12 +406,13 @@
         }
 
         handleAddToCart(btn) {
+            const i18n = window.alynt_pg_ajax || {};
             const productId = btn.data('product-id');
             const originalText = btn.text();
             
             // Show loading state
             btn.prop('disabled', true)
-               .html('<span class="alynt-pg-spinner-small"></span> Adding...')
+               .html(`<span class="alynt-pg-spinner-small"></span> ${i18n.i18n_adding || ''}`)
                .addClass('loading');
             
             // AJAX add to cart
@@ -421,10 +429,10 @@
                         btn.prop('disabled', false)
                            .text(originalText)
                            .removeClass('loading');
-                        this.showNotification('Error adding product to cart', 'error');
+                        this.showNotification(i18n.i18n_error_add_to_cart || '', 'error');
                     } else {
                         // Success - change to "View cart"
-                        btn.text('View cart')
+                        btn.text(i18n.i18n_view_cart || '')
                            .removeClass('loading')
                            .addClass('view-cart')
                            .attr('href', wc_add_to_cart_params.cart_url)
@@ -444,7 +452,7 @@
                         productCard.find('.added_to_cart').remove();
                         
                         // Show success modal
-                        this.showModal('Product added to cart successfully!');
+                        this.showModal(i18n.i18n_added_successfully || '');
                         
                         // Trigger cart updated event (but prevent WooCommerce from adding its button)
                         $(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, btn]);
@@ -460,7 +468,7 @@
                     btn.prop('disabled', false)
                        .text(originalText)
                        .removeClass('loading');
-                    this.showModal('Failed to add product to cart');
+                    this.showModal(i18n.i18n_failed_add_to_cart || '');
                 });
         }
 

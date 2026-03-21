@@ -39,6 +39,7 @@ class ALYNT_PG_Plugin {
 		$this->shortcode_renderer = new ALYNT_PG_Shortcode_Renderer( $products_query_service );
 		$this->ajax_handler       = new ALYNT_PG_Ajax_Handler( $products_query_service );
 
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_alynt_pg_filter_products', array( $this->ajax_handler, 'ajax_filter_products' ) );
@@ -56,6 +57,16 @@ class ALYNT_PG_Plugin {
 	 */
 	public function init() {
 		add_shortcode( 'alynt_products_grid', array( $this->shortcode_renderer, 'render_shortcode' ) );
+	}
+
+	/**
+	 * Loads plugin translation files.
+	 *
+	 * @since 1.0.1
+	 *
+	 * @return void
+	 */
+	public function load_textdomain() {
 		load_plugin_textdomain( 'alynt-products-grid', false, dirname( ALYNT_PG_PLUGIN_BASENAME ) . '/languages' );
 	}
 
@@ -105,8 +116,20 @@ class ALYNT_PG_Plugin {
 				'alynt-pg-script',
 				'alynt_pg_ajax',
 				array(
-					'ajax_url' => admin_url( 'admin-ajax.php' ),
-					'nonce'    => wp_create_nonce( 'alynt_pg_nonce' ),
+					'ajax_url'                        => admin_url( 'admin-ajax.php' ),
+					'nonce'                           => wp_create_nonce( 'alynt_pg_nonce' ),
+					'i18n_failed_to_load'             => __( 'Failed to load products', 'alynt-products-grid' ),
+					'i18n_previous'                   => __( '« Previous', 'alynt-products-grid' ),
+					'i18n_next'                       => __( 'Next »', 'alynt-products-grid' ),
+					/* translators: 1: range start, 2: range end, 3: total number of products. */
+					'i18n_results_count_singular'     => __( '%1$s - %2$s of %3$s product', 'alynt-products-grid' ),
+					/* translators: 1: range start, 2: range end, 3: total number of products. */
+					'i18n_results_count_plural'       => __( '%1$s - %2$s of %3$s products', 'alynt-products-grid' ),
+					'i18n_adding'                     => __( 'Adding...', 'alynt-products-grid' ),
+					'i18n_error_add_to_cart'          => __( 'Error adding product to cart', 'alynt-products-grid' ),
+					'i18n_view_cart'                  => __( 'View cart', 'alynt-products-grid' ),
+					'i18n_added_successfully'         => __( 'Product added to cart successfully!', 'alynt-products-grid' ),
+					'i18n_failed_add_to_cart'         => __( 'Failed to add product to cart', 'alynt-products-grid' ),
 				)
 			);
 

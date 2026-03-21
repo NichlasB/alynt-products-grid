@@ -91,7 +91,9 @@ if ( false === $category_map ) {
 			<?php
 			$start = ( $products_data['current_page'] - 1 ) * $atts['per_page'] + 1;
 			$end   = min( $products_data['current_page'] * $atts['per_page'], $products_data['total'] );
-			echo esc_html( absint( $start ) . ' - ' . absint( $end ) . ' ' . __( 'of', 'alynt-products-grid' ) . ' ' . absint( $products_data['total'] ) . ' ' . __( 'products', 'alynt-products-grid' ) );
+			/* translators: 1: range start, 2: range end, 3: total number of products. */
+			$results_count_label = _n( '%1$s - %2$s of %3$s product', '%1$s - %2$s of %3$s products', (int) $products_data['total'], 'alynt-products-grid' );
+			echo esc_html( sprintf( $results_count_label, absint( $start ), absint( $end ), absint( $products_data['total'] ) ) );
 			?>
 		</span>
 	</div>

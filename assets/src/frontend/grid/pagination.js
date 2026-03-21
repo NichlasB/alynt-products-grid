@@ -1,4 +1,6 @@
 export function generatePaginationHtml(data) {
+    const i18n = window.alynt_pg_ajax || {};
+
     if (data.pages <= 1) {
         return '<div class="alynt-pg-pagination"></div>';
     }
@@ -6,7 +8,7 @@ export function generatePaginationHtml(data) {
     let html = '<div class="alynt-pg-pagination">';
 
     if (data.current_page > 1) {
-        html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}">« Previous</button>`;
+        html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}">${i18n.i18n_previous || ''}</button>`;
     }
 
     const startPage = Math.max(1, data.current_page - 2);
@@ -32,7 +34,7 @@ export function generatePaginationHtml(data) {
     }
 
     if (data.current_page < data.pages) {
-        html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}">Next »</button>`;
+        html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}">${i18n.i18n_next || ''}</button>`;
     }
 
     html += '</div>';
