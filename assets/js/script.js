@@ -22,7 +22,6 @@
             // Get category data
             this.allCategories = JSON.parse(this.container.find('.alynt-pg-all-categories').val() || '[]');
             this.categoryMap = JSON.parse(this.container.find('.alynt-pg-category-map').val() || '{}'); // slug -> ID mapping
-            this.restrictedCategories = JSON.parse(this.container.find('.alynt-pg-restricted-categories').val() || '[]');
             
             this.init();
         }
@@ -181,7 +180,7 @@
                     }
                 })
                 .fail(() => {
-                    console.error('Failed to load products');
+                    this.showNotification('Failed to load products', 'error');
                 })
                 .always(() => {
                     this.hideSpinner();
@@ -402,7 +401,6 @@
         handleAddToCart(btn) {
             const productId = btn.data('product-id');
             const originalText = btn.text();
-            const originalHref = btn.attr('href');
             
             // Show loading state
             btn.prop('disabled', true)

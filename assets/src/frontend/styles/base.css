@@ -1,0 +1,41 @@
+.alynt-pg-container {
+    max-width: 100%;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.alynt-pg-results-count {
+    margin-bottom: 1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.alynt-pg-products-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    grid-template-columns: repeat(var(--columns), 1fr);
+}
+
+.alynt-pg-no-products {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    color: #6c757d;
+    grid-column: 1 / -1;
+}
+
+.alynt-pg-no-products p {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.alynt-pg-no-products small {
+    font-size: 0.875rem;
+    color: #868e96;
+    display: block;
+    margin-top: 0.5rem;
+}

@@ -1,0 +1,38 @@
+.alynt-pg-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.alynt-pg-page-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.alynt-pg-page-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
+    text-decoration: none;
+}
+
+.alynt-pg-page-btn.active {
+    background: #007cba;
+    border-color: #007cba;
+    color: #fff;
+}
+
+.alynt-pg-ellipsis {
+    padding: 0.5rem 0.25rem;
+    color: #6c757d;
+}
