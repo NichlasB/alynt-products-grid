@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Alynt Products Grid
- * Plugin URI: https://yourwebsite.com
+ * Plugin URI: https://alynt.com
  * Description: A WooCommerce mobile-responsive products grid with advanced filtering via shortcode.
  * Version: 1.0.1
  * Author: Alynt

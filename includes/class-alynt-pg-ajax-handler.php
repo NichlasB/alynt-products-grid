@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Handles AJAX endpoints for the products grid.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Ajax_Handler {
 	/**
@@ -23,6 +25,8 @@ class ALYNT_PG_Ajax_Handler {
 	/**
 	 * Constructor.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param ALYNT_PG_Products_Query_Service $products_query_service Products query service instance.
 	 */
 	public function __construct( $products_query_service ) {
@@ -31,6 +35,8 @@ class ALYNT_PG_Ajax_Handler {
 
 	/**
 	 * Returns filtered product markup and pagination data.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -67,6 +73,8 @@ class ALYNT_PG_Ajax_Handler {
 	/**
 	 * Returns category counts for the current filter state.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function ajax_get_category_counts() {
@@ -84,6 +92,8 @@ class ALYNT_PG_Ajax_Handler {
 	/**
 	 * Renders product card HTML for AJAX responses.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param array $products Product data array.
 	 * @return string
 	 */
@@ -98,6 +108,8 @@ class ALYNT_PG_Ajax_Handler {
 	/**
 	 * Retrieves sanitized category input from the current AJAX request.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @return array<string>
 	 */
 	private function get_request_categories() {
@@ -111,6 +123,8 @@ class ALYNT_PG_Ajax_Handler {
 
 	/**
 	 * Ensures WooCommerce frontend context is initialized for AJAX pricing logic.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -133,6 +147,8 @@ class ALYNT_PG_Ajax_Handler {
 
 	/**
 	 * Ensures customer-group pricing hooks are loaded during AJAX requests.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */

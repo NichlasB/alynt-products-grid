@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 1.0.1 - 2026-03-20
+## [1.0.1] - 2026-03-20
 
 ### Added
 - Development tooling baseline for npm, Composer, PHPCS, PHPUnit, and release automation.
@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - Added plugin header metadata for PHP, license, and GitHub updater compatibility.
 - Added activation and deactivation hook infrastructure.
 
-## 1.0.0 - Initial release
+## [1.0.0] - 2026-03-20
 
 ### Added
 - WooCommerce product grid shortcode with AJAX filtering, search, pagination, and responsive layout.

@@ -11,10 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Handles WooCommerce product query preparation and formatting.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Products_Query_Service {
 	/**
 	 * Retrieves products and normalizes them for template consumption.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param array $args Query arguments.
 	 * @return array<string, mixed>
@@ -91,6 +95,8 @@ class ALYNT_PG_Products_Query_Service {
 	/**
 	 * Converts mixed category slugs and IDs into normalized term IDs.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param array $categories Category identifiers.
 	 * @return array<int>
 	 */
@@ -117,6 +123,8 @@ class ALYNT_PG_Products_Query_Service {
 
 	/**
 	 * Calculates counts for each category in the current filter context.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param array  $categories     Selected category IDs.
 	 * @param string $search         Search term.
@@ -166,6 +174,8 @@ class ALYNT_PG_Products_Query_Service {
 	/**
 	 * Builds the category tax query for the current filter set.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param array $categories Category IDs.
 	 * @return array
 	 */
@@ -197,6 +207,8 @@ class ALYNT_PG_Products_Query_Service {
 	/**
 	 * Builds a title-only posts_where filter callback.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param string $search_term Search term.
 	 * @return Closure
 	 */
@@ -204,6 +216,8 @@ class ALYNT_PG_Products_Query_Service {
 		return function ( $where, $wp_query ) use ( $search_term ) {
 			global $wpdb;
 			if ( $wp_query->get( 'search_title_only' ) ) {
+				// esc_like escapes LIKE wildcards (% and _) that $wpdb->prepare does not handle;
+				// esc_sql then escapes the result for safe interpolation into the raw SQL string.
 				$where .= " AND {$wpdb->posts}.post_title LIKE '%" . esc_sql( $wpdb->esc_like( $search_term ) ) . "%'";
 			}
 			return $where;

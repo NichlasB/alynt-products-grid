@@ -11,10 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Handles plugin deactivation.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Deactivator {
 	/**
 	 * Runs deactivation tasks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */

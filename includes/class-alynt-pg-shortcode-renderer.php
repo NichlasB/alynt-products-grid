@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Renders the products grid shortcode.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Shortcode_Renderer {
 	/**
@@ -23,6 +25,8 @@ class ALYNT_PG_Shortcode_Renderer {
 	/**
 	 * Constructor.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param ALYNT_PG_Products_Query_Service $products_query_service Products query service instance.
 	 */
 	public function __construct( $products_query_service ) {
@@ -31,6 +35,8 @@ class ALYNT_PG_Shortcode_Renderer {
 
 	/**
 	 * Renders the shortcode output.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string
@@ -61,6 +67,8 @@ class ALYNT_PG_Shortcode_Renderer {
 
 	/**
 	 * Builds the data needed by the grid template.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param array $atts Parsed shortcode attributes.
 	 * @return void
@@ -101,6 +109,8 @@ class ALYNT_PG_Shortcode_Renderer {
 
 	/**
 	 * Parses a comma-separated category list into normalized term IDs.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param string $category_list Comma-separated category list.
 	 * @return array<int>

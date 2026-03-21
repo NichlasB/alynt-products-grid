@@ -207,35 +207,37 @@ The plugin uses neutral colors that can be easily customized:
 ### File Structure
 ```
 alynt-products-grid/
-├── alynt-products-grid.php    # Main plugin file
+├── alynt-products-grid.php          # Main plugin file
+├── uninstall.php                    # Uninstall handler
 ├── assets/
 │   ├── css/
-│   │   └── style.css          # Frontend styles
-│   └── js/
-│       └── script.js          # Frontend JavaScript
-├── templates/
-│   ├── products-grid.php      # Main grid template
-│   └── product-card.php       # Individual product card
-└── README.md                  # This file
+│   │   └── style.css                # Frontend styles
+│   ├── js/
+│   │   └── script.js               # Frontend JavaScript
+│   └── src/                        # Source files for build
+├── docs/
+│   ├── HOOKS.md                    # Hook reference
+│   └── SETTINGS.md                 # Shortcode attribute reference
+├── includes/
+│   ├── class-alynt-products-grid.php          # Backwards-compat wrapper
+│   ├── class-alynt-pg-activator.php           # Activation handler
+│   ├── class-alynt-pg-deactivator.php         # Deactivation handler
+│   ├── class-alynt-pg-plugin.php              # Main plugin orchestrator
+│   ├── class-alynt-pg-ajax-handler.php        # AJAX endpoints
+│   ├── class-alynt-pg-shortcode-renderer.php  # Shortcode rendering
+│   └── class-alynt-pg-products-query-service.php # Product queries
+├── languages/                       # Translation files
+├── public/
+│   └── partials/
+│       ├── products-grid.php        # Main grid template
+│       └── product-card.php         # Product card template
+├── templates/                       # Legacy template wrappers
+└── README.md                        # This file
 ```
 
 ### Hooks & Filters
 
-The plugin provides these WordPress hooks for developers:
-
-```php
-// Modify product query arguments
-add_filter('alynt_pg_product_query_args', function($args) {
-    // Modify $args
-    return $args;
-});
-
-// Modify product data before output
-add_filter('alynt_pg_product_data', function($product_data) {
-    // Modify $product_data
-    return $product_data;
-});
-```
+This plugin does not currently expose custom action or filter hooks. See [docs/HOOKS.md](docs/HOOKS.md) for details.
 
 ## Changelog
 

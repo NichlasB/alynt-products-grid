@@ -11,10 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Handles plugin activation.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Activator {
 	/**
 	 * Runs activation tasks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */

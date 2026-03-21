@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Backwards-compatible main plugin class.
+ *
+ * @since 1.0.0
  */
 class Alynt_Products_Grid extends ALYNT_PG_Plugin {
 }

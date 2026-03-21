@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Coordinates shortcode, AJAX, and asset loading.
+ *
+ * @since 1.0.0
  */
 class ALYNT_PG_Plugin {
 	/**
@@ -29,6 +31,8 @@ class ALYNT_PG_Plugin {
 
 	/**
 	 * Sets up plugin services and hooks.
+	 *
+	 * @since 1.0.0
 	 */
 	public function __construct() {
 		$products_query_service   = new ALYNT_PG_Products_Query_Service();
@@ -46,6 +50,8 @@ class ALYNT_PG_Plugin {
 	/**
 	 * Registers runtime hooks that must run on init.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function init() {
@@ -55,6 +61,8 @@ class ALYNT_PG_Plugin {
 
 	/**
 	 * Enqueues frontend assets when the shortcode is present.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
