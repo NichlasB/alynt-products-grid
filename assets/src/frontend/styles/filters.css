@@ -73,6 +73,11 @@
     cursor: not-allowed;
 }
 
+.alynt-pg-category-btn:focus-visible {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
 .alynt-pg-category-count {
     margin-left: 0.25rem;
     font-weight: normal;
@@ -93,9 +98,10 @@
 }
 
 .alynt-pg-search:focus {
-    outline: none;
+    outline: 2px solid #007cba;
+    outline-offset: 1px;
     border-color: #007cba;
-    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.25);
 }
 
 .alynt-pg-reset-btn {
@@ -111,4 +117,9 @@
 
 .alynt-pg-reset-btn:hover {
     box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1);
+}
+
+.alynt-pg-reset-btn:focus-visible {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
 }

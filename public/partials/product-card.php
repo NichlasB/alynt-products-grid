@@ -9,12 +9,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<div class="alynt-pg-product-card">
+<article class="alynt-pg-product-card">
 	<div class="alynt-pg-product-image">
-		<a href="<?php echo esc_url( $product['permalink'] ); ?>">
+		<a href="<?php echo esc_url( $product['permalink'] ); ?>" aria-hidden="true" tabindex="-1">
 			<?php if ( $product['image'] ) : ?>
 				<img src="<?php echo esc_url( $product['image'][0] ); ?>"
-					alt="<?php echo esc_attr( $product['title'] ); ?>"
+					alt=""
 					width="300"
 					height="300">
 			<?php else : ?>
@@ -67,7 +67,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( $product['in_stock'] ) : ?>
 				<a href="<?php echo esc_url( $product['add_to_cart_url'] ); ?>"
 					class="alynt-pg-add-to-cart-btn"
-					data-product-id="<?php echo esc_attr( $product['id'] ); ?>">
+					data-product-id="<?php echo esc_attr( $product['id'] ); ?>"
+					aria-label="<?php echo esc_attr( sprintf( __( 'Add %s to cart', 'alynt-products-grid' ), $product['title'] ) ); ?>">
 					<?php esc_html_e( 'Add to cart', 'alynt-products-grid' ); ?>
 				</a>
 			<?php else : ?>
@@ -77,4 +78,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 		</div>
 	</div>
-</div>
+</article>

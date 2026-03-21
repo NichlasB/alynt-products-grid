@@ -24,7 +24,7 @@ if ( false === $category_map ) {
 	data-breakpoint-2="<?php echo esc_attr( $atts['breakpoint_2'] ); ?>">
 
 	<div class="alynt-pg-filters">
-		<div class="alynt-pg-category-filters">
+		<div class="alynt-pg-category-filters" role="group" aria-label="<?php esc_attr_e( 'Filter by category', 'alynt-products-grid' ); ?>">
 			<button class="alynt-pg-category-btn active" data-category="all">
 				<?php esc_html_e( 'All', 'alynt-products-grid' ); ?>
 			</button>
@@ -78,6 +78,7 @@ if ( false === $category_map ) {
 		<div class="alynt-pg-search-wrapper">
 			<input type="text"
 					class="alynt-pg-search"
+					aria-label="<?php esc_attr_e( 'Search products', 'alynt-products-grid' ); ?>"
 					placeholder="<?php echo esc_attr__( 'Search products...', 'alynt-products-grid' ); ?>">
 		</div>
 
@@ -86,7 +87,7 @@ if ( false === $category_map ) {
 		</button>
 	</div>
 
-	<div class="alynt-pg-results-count">
+	<div class="alynt-pg-results-count" aria-live="polite" aria-atomic="true">
 		<span class="alynt-pg-showing">
 			<?php
 			$start = ( $products_data['current_page'] - 1 ) * $atts['per_page'] + 1;
@@ -98,11 +99,11 @@ if ( false === $category_map ) {
 		</span>
 	</div>
 
-	<div class="alynt-pg-spinner" style="display: none;">
-		<div class="alynt-pg-spinner-inner"></div>
+	<div class="alynt-pg-spinner" role="status" aria-label="<?php esc_attr_e( 'Loading products', 'alynt-products-grid' ); ?>" style="display: none;">
+		<div class="alynt-pg-spinner-inner" aria-hidden="true"></div>
 	</div>
 
-	<div class="alynt-pg-products-grid" style="--columns: <?php echo esc_attr( $atts['columns'] ); ?>;">
+	<div class="alynt-pg-products-grid" role="region" aria-label="<?php esc_attr_e( 'Products', 'alynt-products-grid' ); ?>" style="--columns: <?php echo esc_attr( $atts['columns'] ); ?>;">
 		<?php if ( ! empty( $products_data['products'] ) ) : ?>
 			<?php foreach ( $products_data['products'] as $product ) : ?>
 				<?php include ALYNT_PG_PLUGIN_DIR . 'public/partials/product-card.php'; ?>
@@ -122,7 +123,7 @@ if ( false === $category_map ) {
 
 			if ( $current_page > 1 ) :
 				?>
-				<button class="alynt-pg-page-btn alynt-pg-prev" data-page="<?php echo esc_attr( $current_page - 1 ); ?>">
+				<button class="alynt-pg-page-btn alynt-pg-prev" data-page="<?php echo esc_attr( $current_page - 1 ); ?>" aria-label="<?php esc_attr_e( 'Previous page', 'alynt-products-grid' ); ?>">
 					<?php esc_html_e( '« Previous', 'alynt-products-grid' ); ?>
 				</button>
 				<?php
@@ -133,7 +134,7 @@ if ( false === $category_map ) {
 
 			if ( $start_page > 1 ) :
 				?>
-				<button class="alynt-pg-page-btn" data-page="1">1</button>
+				<button class="alynt-pg-page-btn" data-page="1" aria-label="<?php esc_attr_e( 'Page 1', 'alynt-products-grid' ); ?>">1</button>
 				<?php if ( $start_page > 2 ) : ?>
 					<span class="alynt-pg-ellipsis">...</span>
 					<?php
@@ -143,9 +144,11 @@ if ( false === $category_map ) {
 			for ( $i = $start_page; $i <= $end_page; $i++ ) :
 				?>
 				<button class="alynt-pg-page-btn <?php echo esc_attr( $i === $current_page ? 'active' : '' ); ?>"
-						data-page="<?php echo esc_attr( $i ); ?>">
-					<?php echo esc_html( $i ); ?>
-				</button>
+					data-page="<?php echo esc_attr( $i ); ?>"
+					aria-label="<?php echo esc_attr( sprintf( __( 'Page %s', 'alynt-products-grid' ), $i ) ); ?>"
+					<?php echo $i === $current_page ? 'aria-current="page"' : ''; ?>>
+				<?php echo esc_html( $i ); ?>
+			</button>
 				<?php
 			endfor;
 
@@ -154,15 +157,15 @@ if ( false === $category_map ) {
 					?>
 					<span class="alynt-pg-ellipsis">...</span>
 				<?php endif; ?>
-				<button class="alynt-pg-page-btn" data-page="<?php echo esc_attr( $total_pages ); ?>">
-					<?php echo esc_html( $total_pages ); ?>
-				</button>
+				<button class="alynt-pg-page-btn" data-page="<?php echo esc_attr( $total_pages ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Page %s', 'alynt-products-grid' ), $total_pages ) ); ?>">
+				<?php echo esc_html( $total_pages ); ?>
+			</button>
 				<?php
 			endif;
 
 			if ( $current_page < $total_pages ) :
 				?>
-				<button class="alynt-pg-page-btn alynt-pg-next" data-page="<?php echo esc_attr( $current_page + 1 ); ?>">
+				<button class="alynt-pg-page-btn alynt-pg-next" data-page="<?php echo esc_attr( $current_page + 1 ); ?>" aria-label="<?php esc_attr_e( 'Next page', 'alynt-products-grid' ); ?>">
 					<?php esc_html_e( 'Next »', 'alynt-products-grid' ); ?>
 				</button>
 			<?php endif; ?>

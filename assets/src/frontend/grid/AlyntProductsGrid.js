@@ -213,9 +213,9 @@ export class AlyntProductsGrid {
             $btn.find('.alynt-pg-category-count').text(`(${count})`);
 
             if (count === 0 && !$btn.hasClass('active')) {
-                $btn.addClass('disabled');
+                $btn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true);
             } else {
-                $btn.removeClass('disabled');
+                $btn.removeClass('disabled').removeAttr('aria-disabled').prop('disabled', false);
             }
         });
     }

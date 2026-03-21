@@ -130,6 +130,16 @@ class ALYNT_PG_Plugin {
 					'i18n_view_cart'                  => __( 'View cart', 'alynt-products-grid' ),
 					'i18n_added_successfully'         => __( 'Product added to cart successfully!', 'alynt-products-grid' ),
 					'i18n_failed_add_to_cart'         => __( 'Failed to add product to cart', 'alynt-products-grid' ),
+					/* translators: aria-label for the close button on error notifications. */
+					'i18n_close_notification'         => __( 'Close notification', 'alynt-products-grid' ),
+					/* translators: aria-label for the add-to-cart success modal dialog. */
+					'i18n_cart_notification'          => __( 'Cart notification', 'alynt-products-grid' ),
+					/* translators: %s is a page number; used as aria-label on pagination buttons. */
+					'i18n_page_label'                 => __( 'Page %s', 'alynt-products-grid' ),
+					/* translators: aria-label for the previous page pagination button. */
+					'i18n_prev_page'                  => __( 'Previous page', 'alynt-products-grid' ),
+					/* translators: aria-label for the next page pagination button. */
+					'i18n_next_page'                  => __( 'Next page', 'alynt-products-grid' ),
 				)
 			);
 

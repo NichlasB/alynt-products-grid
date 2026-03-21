@@ -125,3 +125,18 @@
     color: #155724;
     margin: 0;
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .alynt-pg-spinner-inner,
+    .alynt-pg-notification,
+    .alynt-pg-product-card,
+    .alynt-pg-product-image img,
+    .alynt-pg-add-to-cart-btn,
+    .alynt-pg-category-btn,
+    .alynt-pg-page-btn,
+    .alynt-pg-reset-btn,
+    .alynt-pg-search {
+        animation: none !important;
+        transition: none !important;
+    }
+}

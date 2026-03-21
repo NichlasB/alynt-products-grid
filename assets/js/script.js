@@ -224,9 +224,9 @@
                 $countSpan.text(`(${count})`);
                 
                 if (count === 0 && !$btn.hasClass('active')) {
-                    $btn.addClass('disabled');
+                    $btn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true);
                 } else {
-                    $btn.removeClass('disabled');
+                    $btn.removeClass('disabled').removeAttr('aria-disabled').prop('disabled', false);
                 }
             });
         }
@@ -251,7 +251,7 @@
             
             // Previous button
             if (data.current_page > 1) {
-                html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}">${i18n.i18n_previous || ''}</button>`;
+                html += `<button class="alynt-pg-page-btn alynt-pg-prev" data-page="${data.current_page - 1}" aria-label="${i18n.i18n_prev_page || 'Previous page'}">${i18n.i18n_previous || ''}</button>`;
             }
             
             // Page numbers
@@ -259,27 +259,31 @@
             const endPage = Math.min(data.pages, data.current_page + 2);
             
             if (startPage > 1) {
-                html += '<button class="alynt-pg-page-btn" data-page="1">1</button>';
+                const firstPageLabel = (i18n.i18n_page_label || 'Page %s').replace('%s', 1);
+                html += `<button class="alynt-pg-page-btn" data-page="1" aria-label="${firstPageLabel}">1</button>`;
                 if (startPage > 2) {
-                    html += '<span class="alynt-pg-ellipsis">...</span>';
+                    html += '<span class="alynt-pg-ellipsis" aria-hidden="true">...</span>';
                 }
             }
             
             for (let i = startPage; i <= endPage; i++) {
                 const activeClass = (i === data.current_page) ? ' active' : '';
-                html += `<button class="alynt-pg-page-btn${activeClass}" data-page="${i}">${i}</button>`;
+                const ariaCurrent = (i === data.current_page) ? ' aria-current="page"' : '';
+                const pageLabel = (i18n.i18n_page_label || 'Page %s').replace('%s', i);
+                html += `<button class="alynt-pg-page-btn${activeClass}" data-page="${i}" aria-label="${pageLabel}"${ariaCurrent}>${i}</button>`;
             }
             
             if (endPage < data.pages) {
                 if (endPage < data.pages - 1) {
-                    html += '<span class="alynt-pg-ellipsis">...</span>';
+                    html += '<span class="alynt-pg-ellipsis" aria-hidden="true">...</span>';
                 }
-                html += `<button class="alynt-pg-page-btn" data-page="${data.pages}">${data.pages}</button>`;
+                const lastPageLabel = (i18n.i18n_page_label || 'Page %s').replace('%s', data.pages);
+                html += `<button class="alynt-pg-page-btn" data-page="${data.pages}" aria-label="${lastPageLabel}">${data.pages}</button>`;
             }
             
             // Next button
             if (data.current_page < data.pages) {
-                html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}">${i18n.i18n_next || ''}</button>`;
+                html += `<button class="alynt-pg-page-btn alynt-pg-next" data-page="${data.current_page + 1}" aria-label="${i18n.i18n_next_page || 'Next page'}">${i18n.i18n_next || ''}</button>`;
             }
             
             html += '</div>';
@@ -300,11 +304,13 @@
         }
 
         showSpinner() {
+            this.container.attr('aria-busy', 'true');
             this.container.find('.alynt-pg-spinner').show();
             this.container.find('.alynt-pg-products-grid').css('opacity', '0.5');
         }
 
         hideSpinner() {
+            this.container.removeAttr('aria-busy');
             this.container.find('.alynt-pg-spinner').hide();
             this.container.find('.alynt-pg-products-grid').css('opacity', '1');
         }
@@ -473,14 +479,18 @@
         }
 
         showModal(message) {
+            const i18n = window.alynt_pg_ajax || {};
             // Remove existing modals
             $('.alynt-pg-modal').remove();
             
+            // Store the element that triggered the modal so we can return focus
+            const triggerElement = document.activeElement;
+            
             // Create modal
             const modal = $(`
-                <div class="alynt-pg-modal">
+                <div class="alynt-pg-modal" role="dialog" aria-modal="true" aria-label="${i18n.i18n_cart_notification || 'Cart notification'}">
                     <div class="alynt-pg-modal-overlay"></div>
-                    <div class="alynt-pg-modal-content">
+                    <div class="alynt-pg-modal-content" tabindex="-1">
                         <div class="alynt-pg-modal-message">${message}</div>
                     </div>
                 </div>
@@ -489,13 +499,18 @@
             // Add to body
             $('body').append(modal);
             
-            // Show modal with animation
-            modal.fadeIn(200);
+            // Show modal with animation and move focus to it
+            modal.fadeIn(200, function() {
+                modal.find('.alynt-pg-modal-content').focus();
+            });
             
-            // Auto-hide after 1 second
+            // Auto-hide after 1 second and return focus
             setTimeout(() => {
                 modal.fadeOut(200, function() {
                     $(this).remove();
+                    if (triggerElement) {
+                        $(triggerElement).focus();
+                    }
                 });
             }, 1000);
         }
@@ -506,11 +521,12 @@
                 // Remove existing notifications
                 $('.alynt-pg-notification').remove();
                 
+                const i18n = window.alynt_pg_ajax || {};
                 // Create notification
                 const notification = $(`
-                    <div class="alynt-pg-notification alynt-pg-notification-${type}">
+                    <div class="alynt-pg-notification alynt-pg-notification-${type}" role="alert">
                         <span class="alynt-pg-notification-message">${message}</span>
-                        <button class="alynt-pg-notification-close">&times;</button>
+                        <button class="alynt-pg-notification-close" aria-label="${i18n.i18n_close_notification || 'Close notification'}">&times;</button>
                     </div>
                 `);
                 
