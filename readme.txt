@@ -4,7 +4,7 @@ Tags: woocommerce, products, grid, shortcode, ajax
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,16 @@ Yes. Use the shortcode attributes to pass category IDs or slugs.
 
 == Changelog ==
 
+= 1.1.0 =
+* Added request error handling module for AJAX error categorization and recovery.
+* Added empty-state partial for consistent no-results display.
+* Added full localization support for grid interface strings.
+* Added ARIA labels, roles, and live regions for accessibility.
+* Added reduced-motion support and modal focus handling.
+* Refactored frontend grid components for better error recovery.
+* Improved responsive breakpoints and feedback styling.
+* Split plugin architecture into focused include classes.
+
 = 1.0.1 =
 * Added project tooling, testing scaffolding, and GitHub release automation.
 * Added updater metadata for Alynt Plugin Updater compatibility.
@@ -51,5 +61,5 @@ Yes. Use the shortcode attributes to pass category IDs or slugs.
 
 == Upgrade Notice ==
 
-= 1.0.1 =
-Includes development infrastructure, release automation, and updater compatibility metadata.
+= 1.1.0 =
+No breaking changes. Includes error handling improvements, localization support, and accessibility enhancements.
