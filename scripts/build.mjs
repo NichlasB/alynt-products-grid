@@ -1,42 +1,70 @@
-import { existsSync } from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
 import * as esbuild from 'esbuild';
 
 const isWatch = process.argv.includes('--watch');
-const entryPoints = [];
+const buildTargets = [];
 
-if (existsSync('assets/src/frontend/index.js')) {
-  entryPoints.push('assets/src/frontend/index.js');
+if (existsSync('assets/dist')) {
+  rmSync('assets/dist', { recursive: true, force: true });
+}
+
+if (existsSync('assets/src/frontend/init.js')) {
+  buildTargets.push({
+    entryPoints: ['assets/src/frontend/init.js'],
+    bundle: true,
+    minify: !isWatch,
+    sourcemap: isWatch,
+    outfile: 'assets/js/script.js',
+    platform: 'browser',
+    target: ['es2020']
+  });
+}
+
+if (existsSync('assets/src/frontend/styles/index.css')) {
+  buildTargets.push({
+    entryPoints: ['assets/src/frontend/styles/index.css'],
+    bundle: true,
+    minify: !isWatch,
+    sourcemap: isWatch,
+    outfile: 'assets/css/style.css'
+  });
 }
 
 if (existsSync('assets/src/admin/index.js')) {
-  entryPoints.push('assets/src/admin/index.js');
+  buildTargets.push({
+    entryPoints: ['assets/src/admin/index.js'],
+    bundle: true,
+    minify: !isWatch,
+    sourcemap: isWatch,
+    outfile: 'assets/js/admin.js',
+    platform: 'browser',
+    target: ['es2020']
+  });
 }
 
-if (entryPoints.length === 0) {
+if (existsSync('assets/src/admin/styles/index.css')) {
+  buildTargets.push({
+    entryPoints: ['assets/src/admin/styles/index.css'],
+    bundle: true,
+    minify: !isWatch,
+    sourcemap: isWatch,
+    outfile: 'assets/css/admin.css'
+  });
+}
+
+if (buildTargets.length === 0) {
   console.log('No asset entry points found.');
   process.exit(0);
 }
 
-const buildOptions = {
-  entryPoints,
-  bundle: true,
-  minify: !isWatch,
-  sourcemap: isWatch,
-  outdir: 'assets/dist',
-  outbase: 'assets/src',
-  entryNames: '[dir]/[name]',
-  assetNames: '[dir]/[name]',
-  target: ['es2020'],
-  loader: {
-    '.css': 'css'
-  }
-};
-
 if (isWatch) {
-  const context = await esbuild.context(buildOptions);
-  await context.watch();
+  const contexts = await Promise.all(
+    buildTargets.map((buildTarget) => esbuild.context(buildTarget))
+  );
+
+  await Promise.all(contexts.map((context) => context.watch()));
   console.log('Watching for asset changes...');
 } else {
-  await esbuild.build(buildOptions);
+  await Promise.all(buildTargets.map((buildTarget) => esbuild.build(buildTarget)));
   console.log('Build complete.');
 }

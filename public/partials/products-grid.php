@@ -11,8 +11,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $category_ids = wp_list_pluck( $categories, 'term_id' );
 $category_map = array_combine( wp_list_pluck( $categories, 'slug' ), $category_ids );
+
 if ( false === $category_map ) {
 	$category_map = array();
+}
+
+$results_total     = isset( $products_data['total'] ) ? (int) $products_data['total'] : 0;
+$current_page      = isset( $products_data['current_page'] ) ? max( 1, (int) $products_data['current_page'] ) : 1;
+$products_per_page = isset( $atts['per_page'] ) ? max( 1, (int) $atts['per_page'] ) : 12;
+$total_pages       = isset( $products_data['pages'] ) ? (int) $products_data['pages'] : 0;
+
+if ( empty( $empty_state_title ) ) {
+	$empty_state_title = __( 'No products found.', 'alynt-products-grid' );
+}
+
+if ( empty( $empty_state_message ) ) {
+	$empty_state_message = __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' );
 }
 ?>
 <div class="alynt-pg-container"
@@ -22,6 +36,12 @@ if ( false === $category_map ) {
 	data-breakpoint-4="<?php echo esc_attr( $atts['breakpoint_4'] ); ?>"
 	data-breakpoint-3="<?php echo esc_attr( $atts['breakpoint_3'] ); ?>"
 	data-breakpoint-2="<?php echo esc_attr( $atts['breakpoint_2'] ); ?>">
+
+	<?php if ( ! empty( $grid_notice_message ) ) : ?>
+		<div class="alynt-pg-notification alynt-pg-notification-<?php echo esc_attr( $grid_notice_type ); ?>" role="<?php echo esc_attr( 'error' === $grid_notice_type ? 'alert' : 'status' ); ?>">
+			<span class="alynt-pg-notification-message"><?php echo esc_html( $grid_notice_message ); ?></span>
+		</div>
+	<?php endif; ?>
 
 	<div class="alynt-pg-filters">
 		<div class="alynt-pg-category-filters" role="group" aria-label="<?php esc_attr_e( 'Filter by category', 'alynt-products-grid' ); ?>">
@@ -90,11 +110,15 @@ if ( false === $category_map ) {
 	<div class="alynt-pg-results-count" aria-live="polite" aria-atomic="true">
 		<span class="alynt-pg-showing">
 			<?php
-			$start = ( $products_data['current_page'] - 1 ) * $atts['per_page'] + 1;
-			$end   = min( $products_data['current_page'] * $atts['per_page'], $products_data['total'] );
-			/* translators: 1: range start, 2: range end, 3: total number of products. */
-			$results_count_label = _n( '%1$s - %2$s of %3$s product', '%1$s - %2$s of %3$s products', (int) $products_data['total'], 'alynt-products-grid' );
-			echo esc_html( sprintf( $results_count_label, absint( $start ), absint( $end ), absint( $products_data['total'] ) ) );
+			if ( $results_total > 0 ) {
+				$start = ( $current_page - 1 ) * $products_per_page + 1;
+				$end   = min( $current_page * $products_per_page, $results_total );
+				/* translators: 1: range start, 2: range end, 3: total number of products. */
+				$results_count_label = _n( '%1$s - %2$s of %3$s product', '%1$s - %2$s of %3$s products', $results_total, 'alynt-products-grid' );
+				echo esc_html( sprintf( $results_count_label, absint( $start ), absint( $end ), absint( $results_total ) ) );
+			} else {
+				esc_html_e( 'No products found.', 'alynt-products-grid' );
+			}
 			?>
 		</span>
 	</div>
@@ -109,22 +133,17 @@ if ( false === $category_map ) {
 				<?php include ALYNT_PG_PLUGIN_DIR . 'public/partials/product-card.php'; ?>
 			<?php endforeach; ?>
 		<?php else : ?>
-			<div class="alynt-pg-no-products">
-				<p><?php esc_html_e( 'No products found.', 'alynt-products-grid' ); ?></p>
-			</div>
+			<?php include ALYNT_PG_PLUGIN_DIR . 'public/partials/empty-state.php'; ?>
 		<?php endif; ?>
 	</div>
 
-	<?php if ( $products_data['pages'] > 1 ) : ?>
-		<div class="alynt-pg-pagination">
-			<?php
-			$current_page = $products_data['current_page'];
-			$total_pages  = $products_data['pages'];
-
+	<div class="alynt-pg-pagination">
+		<?php
+		if ( $total_pages > 1 ) :
 			if ( $current_page > 1 ) :
 				?>
 				<button class="alynt-pg-page-btn alynt-pg-prev" data-page="<?php echo esc_attr( $current_page - 1 ); ?>" aria-label="<?php esc_attr_e( 'Previous page', 'alynt-products-grid' ); ?>">
-					<?php esc_html_e( '« Previous', 'alynt-products-grid' ); ?>
+					<?php esc_html_e( 'Previous', 'alynt-products-grid' ); ?>
 				</button>
 				<?php
 			endif;
@@ -145,6 +164,7 @@ if ( false === $category_map ) {
 				?>
 				<button class="alynt-pg-page-btn <?php echo esc_attr( $i === $current_page ? 'active' : '' ); ?>"
 					data-page="<?php echo esc_attr( $i ); ?>"
+					<?php /* translators: %s is a page number. */ ?>
 					aria-label="<?php echo esc_attr( sprintf( __( 'Page %s', 'alynt-products-grid' ), $i ) ); ?>"
 					<?php echo $i === $current_page ? 'aria-current="page"' : ''; ?>>
 				<?php echo esc_html( $i ); ?>
@@ -157,6 +177,7 @@ if ( false === $category_map ) {
 					?>
 					<span class="alynt-pg-ellipsis">...</span>
 				<?php endif; ?>
+				<?php /* translators: %s is a page number. */ ?>
 				<button class="alynt-pg-page-btn" data-page="<?php echo esc_attr( $total_pages ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Page %s', 'alynt-products-grid' ), $total_pages ) ); ?>">
 				<?php echo esc_html( $total_pages ); ?>
 			</button>
@@ -166,14 +187,18 @@ if ( false === $category_map ) {
 			if ( $current_page < $total_pages ) :
 				?>
 				<button class="alynt-pg-page-btn alynt-pg-next" data-page="<?php echo esc_attr( $current_page + 1 ); ?>" aria-label="<?php esc_attr_e( 'Next page', 'alynt-products-grid' ); ?>">
-					<?php esc_html_e( 'Next »', 'alynt-products-grid' ); ?>
+					<?php esc_html_e( 'Next', 'alynt-products-grid' ); ?>
 				</button>
 			<?php endif; ?>
-		</div>
-	<?php endif; ?>
+		<?php endif; ?>
+	</div>
 
 	<input type="hidden" class="alynt-pg-all-categories"
 			value="<?php echo esc_attr( wp_json_encode( $category_ids ) ); ?>">
 	<input type="hidden" class="alynt-pg-category-map"
 			value="<?php echo esc_attr( wp_json_encode( $category_map ) ); ?>">
+	<input type="hidden" class="alynt-pg-grid-context"
+			value="<?php echo esc_attr( wp_json_encode( $grid_context ) ); ?>">
+	<input type="hidden" class="alynt-pg-grid-signature"
+			value="<?php echo esc_attr( $grid_signature ); ?>">
 </div>

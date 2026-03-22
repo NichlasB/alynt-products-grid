@@ -1,5 +1,12 @@
 export function applyResponsiveBreakpoints(instance) {
+    const styleId = `alynt-pg-responsive-${instance.settings.columns}-${instance.settings.breakpoint5}-${instance.settings.breakpoint4}-${instance.settings.breakpoint3}-${instance.settings.breakpoint2}`;
+
+    if (document.getElementById(styleId)) {
+        return;
+    }
+
     const style = document.createElement('style');
+    style.id = styleId;
     style.textContent = `
         @media (max-width: ${instance.settings.breakpoint5}px) {
             .alynt-pg-container[data-columns="${instance.settings.columns}"] .alynt-pg-products-grid {

@@ -14,6 +14,13 @@ rsync -avz --delete \
   --exclude='coverage' \
   --exclude='.env' \
   --exclude='composer.phar' \
+  --exclude='composer.json' \
+  --exclude='composer.lock' \
+  --exclude='package.json' \
+  --exclude='package-lock.json' \
+  --exclude='phpunit.xml' \
+  --exclude='scripts/' \
+  --exclude='deploy.sh' \
   --exclude='*.map' \
   ./ "${REMOTE_HOST}:${REMOTE_PATH}/"
 

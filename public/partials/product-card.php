@@ -65,12 +65,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="alynt-pg-product-actions">
 			<?php if ( $product['in_stock'] ) : ?>
-				<a href="<?php echo esc_url( $product['add_to_cart_url'] ); ?>"
-					class="alynt-pg-add-to-cart-btn"
-					data-product-id="<?php echo esc_attr( $product['id'] ); ?>"
-					aria-label="<?php echo esc_attr( sprintf( __( 'Add %s to cart', 'alynt-products-grid' ), $product['title'] ) ); ?>">
-					<?php esc_html_e( 'Add to cart', 'alynt-products-grid' ); ?>
-				</a>
+				<?php if ( ! empty( $product['can_ajax_add_to_cart'] ) ) : ?>
+					<a href="<?php echo esc_url( $product['add_to_cart_url'] ); ?>"
+						class="alynt-pg-add-to-cart-btn"
+						data-product-id="<?php echo esc_attr( $product['id'] ); ?>"
+						<?php /* translators: %s is the product title. */ ?>
+						aria-label="<?php echo esc_attr( sprintf( __( 'Add %s to cart', 'alynt-products-grid' ), $product['title'] ) ); ?>">
+						<?php esc_html_e( 'Add to cart', 'alynt-products-grid' ); ?>
+					</a>
+				<?php else : ?>
+					<a href="<?php echo esc_url( $product['permalink'] ); ?>"
+						class="alynt-pg-add-to-cart-btn alynt-pg-view-product"
+						<?php /* translators: %s is the product title. */ ?>
+						aria-label="<?php echo esc_attr( sprintf( __( 'View %s', 'alynt-products-grid' ), $product['title'] ) ); ?>">
+						<?php esc_html_e( 'View product', 'alynt-products-grid' ); ?>
+					</a>
+				<?php endif; ?>
 			<?php else : ?>
 				<span class="alynt-pg-out-of-stock">
 					<?php esc_html_e( 'Out of stock', 'alynt-products-grid' ); ?>

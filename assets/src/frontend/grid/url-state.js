@@ -1,20 +1,40 @@
+function canUseUrlState(instance) {
+    return Boolean(
+        instance
+        && instance.urlStateEnabled
+        && typeof window.URL !== 'undefined'
+        && typeof window.URLSearchParams !== 'undefined'
+        && window.history
+        && typeof window.history.pushState === 'function'
+    );
+}
+
 export function updateUrlFromState(instance) {
-    const url = new URL(window.location);
-    const params = [];
+    if (!canUseUrlState(instance)) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+
+    params.delete('categories');
+    params.delete('search');
+    params.delete('page');
 
     if (instance.currentCategories.length > 0) {
-        params.push(`categories=${instance.currentCategories.join(',')}`);
+        params.set('categories', instance.currentCategories.join(','));
     }
 
     if (instance.currentSearch) {
-        params.push(`search=${encodeURIComponent(instance.currentSearch)}`);
+        params.set('search', instance.currentSearch);
     }
 
     if (instance.currentPage > 1) {
-        params.push(`page=${instance.currentPage}`);
+        params.set('page', String(instance.currentPage));
     }
 
-    const newUrl = params.length > 0 ? `${url.pathname}?${params.join('&')}` : url.pathname;
+    const searchString = params.toString();
+    const newUrl = `${url.pathname}${searchString ? `?${searchString}` : ''}${url.hash || ''}`;
     window.history.pushState({
         categories: instance.currentCategories,
         search: instance.currentSearch,
@@ -23,7 +43,7 @@ export function updateUrlFromState(instance) {
 }
 
 export function loadStateFromUrl(instance) {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = canUseUrlState(instance) ? new URLSearchParams(window.location.search) : new URLSearchParams();
 
     const categories = urlParams.get('categories');
     if (categories) {
@@ -42,8 +62,10 @@ export function loadStateFromUrl(instance) {
         instance.currentCategories = [];
     }
 
-    instance.currentSearch = urlParams.get('search') || '';
-    instance.currentPage = parseInt(urlParams.get('page'), 10) || 1;
+    instance.currentSearch = (urlParams.get('search') || '').trim();
+
+    const parsedPage = parseInt(urlParams.get('page'), 10);
+    instance.currentPage = parsedPage > 0 ? parsedPage : 1;
 
     instance.container.find('.alynt-pg-category-btn').removeClass('active');
     instance.container.find('.alynt-pg-search').val(instance.currentSearch);
@@ -56,5 +78,5 @@ export function loadStateFromUrl(instance) {
         });
     }
 
-    instance.loadProducts();
+    instance.loadProducts(true);
 }

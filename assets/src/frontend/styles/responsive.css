@@ -70,6 +70,16 @@
         padding: 0.4rem 0.6rem;
         font-size: 0.8rem;
     }
+
+    .alynt-pg-notification {
+        flex-direction: column;
+    }
+
+    .alynt-pg-notification-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
 
 .alynt-pg-container[data-breakpoint-5="1400"] {

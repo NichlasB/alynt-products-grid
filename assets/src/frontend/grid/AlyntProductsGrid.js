@@ -1,8 +1,12 @@
 import { handleAddToCart } from './cart.js';
 import { generatePaginationHtml } from './pagination.js';
+import { getAjaxErrorDetails } from './request-errors.js';
 import { applyResponsiveBreakpoints } from './responsive.js';
-import { hideSpinner, showModal, showNotification, showSpinner, updateResultsCount } from './feedback.js';
+import { hideSpinner, renderEmptyState, setCategoryCountsLoading, showModal, showNotification, showSpinner, updateResultsCount } from './feedback.js';
 import { loadStateFromUrl, updateUrlFromState } from './url-state.js';
+
+const PRODUCTS_REQUEST_TIMEOUT_MS = 15000;
+const COUNTS_REQUEST_TIMEOUT_MS = 10000;
 
 export class AlyntProductsGrid {
     constructor(container) {
@@ -11,6 +15,9 @@ export class AlyntProductsGrid {
         this.currentSearch = '';
         this.currentPage = 1;
         this.isLoading = false;
+        this.productsRequest = null;
+        this.categoryCountsRequest = null;
+        this.pendingCategoryCountsRefresh = false;
         this.settings = {
             columns: parseInt(this.container.data('columns'), 10) || 4,
             perPage: parseInt(this.container.data('per-page'), 10) || 12,
@@ -19,17 +26,33 @@ export class AlyntProductsGrid {
             breakpoint3: parseInt(this.container.data('breakpoint-3'), 10) || 768,
             breakpoint2: parseInt(this.container.data('breakpoint-2'), 10) || 576
         };
-        this.allCategories = JSON.parse(this.container.find('.alynt-pg-all-categories').val() || '[]');
-        this.categoryMap = JSON.parse(this.container.find('.alynt-pg-category-map').val() || '{}');
+        this.allCategories = this.parseJsonData('.alynt-pg-all-categories', []);
+        this.categoryMap = this.parseJsonData('.alynt-pg-category-map', {});
+        this.gridContext = this.parseJsonData('.alynt-pg-grid-context', null);
+        this.gridSignature = String(this.container.find('.alynt-pg-grid-signature').val() || '');
+        this.urlStateEnabled = window.jQuery('.alynt-pg-container').length === 1;
 
         this.init();
+    }
+
+    parseJsonData(selector, fallbackValue) {
+        const rawValue = this.container.find(selector).val();
+
+        if (!rawValue) {
+            return fallbackValue;
+        }
+
+        try {
+            return JSON.parse(rawValue);
+        } catch (error) {
+            return fallbackValue;
+        }
     }
 
     init() {
         this.bindEvents();
         applyResponsiveBreakpoints(this);
         loadStateFromUrl(this);
-        this.updateCategoryCounts();
     }
 
     bindEvents() {
@@ -56,6 +79,7 @@ export class AlyntProductsGrid {
         this.container.on('click', '.alynt-pg-page-btn', (event) => {
             event.preventDefault();
             const page = parseInt($(event.currentTarget).data('page'), 10);
+
             if (page && page !== this.currentPage) {
                 this.handlePagination(page);
             }
@@ -67,7 +91,7 @@ export class AlyntProductsGrid {
             }
         });
 
-        this.container.on('click', '.alynt-pg-add-to-cart-btn:not(.view-cart)', (event) => {
+        this.container.on('click', '.alynt-pg-add-to-cart-btn[data-product-id]:not(.view-cart)', (event) => {
             event.preventDefault();
             handleAddToCart(this, $(event.currentTarget));
         });
@@ -81,6 +105,39 @@ export class AlyntProductsGrid {
         });
     }
 
+    getSelectedCategoryIds() {
+        return this.currentCategories
+            .map((slug) => this.categoryMap[slug])
+            .filter((id) => id);
+    }
+
+    getGridContextPayload() {
+        if (!this.gridContext) {
+            return '';
+        }
+
+        return JSON.stringify(this.gridContext);
+    }
+
+    getRetryAction(handler) {
+        const i18n = window.alynt_pg_ajax || {};
+
+        if (typeof handler !== 'function') {
+            return {};
+        }
+
+        return {
+            action: {
+                label: i18n.i18n_retry || 'Retry',
+                handler
+            }
+        };
+    }
+
+    hasErrorNotification() {
+        return this.container.find('.alynt-pg-notification-error').length > 0;
+    }
+
     handleCategoryFilter(btn) {
         const categorySlug = btn.data('category');
 
@@ -90,6 +147,7 @@ export class AlyntProductsGrid {
             btn.addClass('active');
         } else {
             const index = this.currentCategories.indexOf(categorySlug);
+
             if (index > -1) {
                 this.currentCategories.splice(index, 1);
                 btn.removeClass('active');
@@ -103,15 +161,13 @@ export class AlyntProductsGrid {
         }
 
         this.currentPage = 1;
-        this.loadProducts();
-        this.updateCategoryCounts();
+        this.loadProducts(true);
     }
 
     handleSearch(searchTerm) {
         this.currentSearch = searchTerm.trim();
         this.currentPage = 1;
-        this.loadProducts();
-        this.updateCategoryCounts();
+        this.loadProducts(true);
     }
 
     handlePagination(page) {
@@ -132,71 +188,185 @@ export class AlyntProductsGrid {
         this.container.find('.alynt-pg-category-btn[data-category="all"]').addClass('active');
         this.container.find('.alynt-pg-search').val('');
 
-        this.loadProducts();
-        this.updateCategoryCounts();
+        this.loadProducts(true);
     }
 
-    loadProducts() {
+    loadProducts(shouldRefreshCategoryCounts = false) {
         const $ = window.jQuery;
+        const i18n = window.alynt_pg_ajax || {};
 
-        if (this.isLoading) {
-            return;
+        this.pendingCategoryCountsRefresh = this.pendingCategoryCountsRefresh || Boolean(shouldRefreshCategoryCounts);
+
+        if (this.productsRequest) {
+            const previousRequest = this.productsRequest;
+            this.productsRequest = null;
+            previousRequest.abort();
         }
 
         this.isLoading = true;
         showSpinner(this);
 
-        const categoryIds = this.currentCategories
-            .map((slug) => this.categoryMap[slug])
-            .filter((id) => id);
+        const request = $.ajax({
+            url: alynt_pg_ajax.ajax_url,
+            method: 'POST',
+            timeout: PRODUCTS_REQUEST_TIMEOUT_MS,
+            data: {
+                action: 'alynt_pg_filter_products',
+                nonce: alynt_pg_ajax.nonce,
+                categories: this.getSelectedCategoryIds(),
+                search: this.currentSearch,
+                page: this.currentPage,
+                per_page: this.settings.perPage,
+                grid_context: this.getGridContextPayload(),
+                grid_signature: this.gridSignature
+            }
+        });
 
-        $.post(alynt_pg_ajax.ajax_url, {
-            action: 'alynt_pg_filter_products',
-            nonce: alynt_pg_ajax.nonce,
-            categories: categoryIds,
-            search: this.currentSearch,
-            page: this.currentPage,
-            per_page: this.settings.perPage,
-            _cache_bust: Date.now()
-        })
-            .done((response) => {
-                if (!response.success) {
+        this.productsRequest = request;
+
+        request
+            .done((response, textStatus, jqXHR) => {
+                if (!response || response.success !== true || !response.data) {
+                    const errorDetails = getAjaxErrorDetails(jqXHR, textStatus, i18n, i18n.i18n_failed_to_load || '');
+
+                    if (errorDetails.aborted) {
+                        return;
+                    }
+
+                    this.showNotification(
+                        errorDetails.message || i18n.i18n_failed_to_load || '',
+                        'error',
+                        this.getRetryAction(() => this.loadProducts())
+                    );
                     return;
                 }
 
+                this.currentPage = Math.max(1, parseInt(response.data.current_page, 10) || 1);
                 this.updateProductsGrid(response.data);
                 this.updatePagination(response.data);
                 updateResultsCount(this, response.data);
                 updateUrlFromState(this);
+
+                if (this.pendingCategoryCountsRefresh) {
+                    this.pendingCategoryCountsRefresh = false;
+                    this.updateCategoryCounts();
+                }
             })
-            .fail(() => {
-                showNotification(this, (window.alynt_pg_ajax || {}).i18n_failed_to_load || '', 'error');
+            .fail((jqXHR, textStatus) => {
+                const errorDetails = getAjaxErrorDetails(jqXHR, textStatus, i18n, i18n.i18n_failed_to_load || '');
+
+                if (errorDetails.aborted) {
+                    return;
+                }
+
+                this.showNotification(
+                    errorDetails.message || i18n.i18n_failed_to_load || '',
+                    'error',
+                    errorDetails.allowRetry ? this.getRetryAction(() => this.loadProducts(this.pendingCategoryCountsRefresh)) : {}
+                );
             })
             .always(() => {
-                hideSpinner(this);
+                if (this.productsRequest !== request) {
+                    return;
+                }
+
+                this.productsRequest = null;
                 this.isLoading = false;
+                hideSpinner(this);
             });
     }
 
     updateCategoryCounts() {
         const $ = window.jQuery;
-        const categoryIds = this.currentCategories
-            .map((slug) => this.categoryMap[slug])
-            .filter((id) => id);
+        const i18n = window.alynt_pg_ajax || {};
 
-        $.post(alynt_pg_ajax.ajax_url, {
-            action: 'alynt_pg_get_category_counts',
-            nonce: alynt_pg_ajax.nonce,
-            categories: categoryIds,
-            search: this.currentSearch,
-            all_categories: this.allCategories,
-            _cache_bust: Date.now()
-        })
-            .done((response) => {
-                if (response.success) {
-                    this.updateCategoryButtons(response.data);
+        if (this.categoryCountsRequest) {
+            const previousRequest = this.categoryCountsRequest;
+            this.categoryCountsRequest = null;
+            previousRequest.abort();
+        }
+
+        setCategoryCountsLoading(this, true);
+
+        const request = $.ajax({
+            url: alynt_pg_ajax.ajax_url,
+            method: 'POST',
+            timeout: COUNTS_REQUEST_TIMEOUT_MS,
+            data: {
+                action: 'alynt_pg_get_category_counts',
+                nonce: alynt_pg_ajax.nonce,
+                categories: this.getSelectedCategoryIds(),
+                search: this.currentSearch,
+                all_categories: this.allCategories,
+                grid_context: this.getGridContextPayload(),
+                grid_signature: this.gridSignature
+            }
+        });
+
+        this.categoryCountsRequest = request;
+
+        request
+            .done((response, textStatus, jqXHR) => {
+                if (!response || response.success !== true || !response.data) {
+                    const errorDetails = getAjaxErrorDetails(jqXHR, textStatus, i18n, i18n.i18n_counts_failed || '');
+
+                    if (errorDetails.aborted) {
+                        return;
+                    }
+
+                    this.resetCategoryButtonAvailability();
+
+                    if (!this.hasErrorNotification()) {
+                        this.showNotification(
+                            errorDetails.message || i18n.i18n_counts_failed || '',
+                            'error',
+                            errorDetails.allowRetry ? this.getRetryAction(() => this.updateCategoryCounts()) : {}
+                        );
+                    }
+                    return;
                 }
+
+                this.updateCategoryButtons(response.data);
+            })
+            .fail((jqXHR, textStatus) => {
+                const errorDetails = getAjaxErrorDetails(jqXHR, textStatus, i18n, i18n.i18n_counts_failed || '');
+
+                if (errorDetails.aborted) {
+                    return;
+                }
+
+                this.resetCategoryButtonAvailability();
+
+                if (!this.hasErrorNotification()) {
+                    this.showNotification(
+                        errorDetails.message || i18n.i18n_counts_failed || '',
+                        'error',
+                        errorDetails.allowRetry ? this.getRetryAction(() => this.updateCategoryCounts()) : {}
+                    );
+                }
+            })
+            .always(() => {
+                if (this.categoryCountsRequest !== request) {
+                    return;
+                }
+
+                this.categoryCountsRequest = null;
+                setCategoryCountsLoading(this, false);
             });
+    }
+
+    resetCategoryButtonAvailability() {
+        this.container.find('.alynt-pg-category-btn').each(function() {
+            const $btn = window.jQuery(this);
+
+            if ($btn.data('category') === 'all') {
+                return;
+            }
+
+            $btn.removeClass('disabled')
+                .removeAttr('aria-disabled')
+                .prop('disabled', false);
+        });
     }
 
     updateCategoryButtons(counts) {
@@ -221,18 +391,32 @@ export class AlyntProductsGrid {
     }
 
     updateProductsGrid(data) {
-        this.container.find('.alynt-pg-products-grid').html(data.products_html);
+        const i18n = window.alynt_pg_ajax || {};
+        const productsHtml = data.products_html || renderEmptyState(
+            i18n.i18n_no_products_title || '',
+            i18n.i18n_no_products_message || ''
+        );
+
+        this.container.find('.alynt-pg-products-grid').html(productsHtml);
     }
 
     updatePagination(data) {
-        this.container.find('.alynt-pg-pagination').replaceWith(generatePaginationHtml(data));
+        const paginationHtml = generatePaginationHtml(data);
+        const pagination = this.container.find('.alynt-pg-pagination');
+
+        if (pagination.length > 0) {
+            pagination.replaceWith(paginationHtml);
+            return;
+        }
+
+        this.container.find('.alynt-pg-products-grid').after(paginationHtml);
     }
 
     showModal(message) {
         showModal(message);
     }
 
-    showNotification(message, type = 'error') {
-        showNotification(this, message, type);
+    showNotification(message, type = 'error', options = {}) {
+        showNotification(this, message, type, options);
     }
 }

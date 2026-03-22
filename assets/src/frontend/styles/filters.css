@@ -11,6 +11,21 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    align-items: center;
+}
+
+.alynt-pg-category-filters.is-updating {
+    opacity: 0.85;
+}
+
+.alynt-pg-category-filters.is-updating::after {
+    content: '';
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid #d0d7de;
+    border-top-color: #007cba;
+    border-radius: 50%;
+    animation: alynt-pg-spin 1s linear infinite;
 }
 
 .alynt-pg-category-btn {
