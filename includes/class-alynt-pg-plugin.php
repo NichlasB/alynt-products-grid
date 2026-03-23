@@ -213,6 +213,8 @@ class ALYNT_PG_Plugin {
 				'i18n_results_count_empty'    => __( 'No products found.', 'alynt-products-grid' ),
 				'i18n_no_products_title'      => __( 'No products found.', 'alynt-products-grid' ),
 				'i18n_no_products_message'    => __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' ),
+				'i18n_no_products_message_search' => __( 'Try a different search term or clear the search to see more products.', 'alynt-products-grid' ),
+				'i18n_no_products_message_none' => __( 'Try browsing another page to see more products.', 'alynt-products-grid' ),
 				'i18n_adding'                 => __( 'Adding...', 'alynt-products-grid' ),
 				'i18n_error_add_to_cart'      => __( 'We could not add this product to your cart. Please try again.', 'alynt-products-grid' ),
 				'i18n_choose_options'         => __( 'This product needs to be configured on its product page before it can be added to your cart.', 'alynt-products-grid' ),

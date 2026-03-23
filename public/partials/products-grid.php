@@ -28,6 +28,15 @@ if ( empty( $empty_state_title ) ) {
 if ( empty( $empty_state_message ) ) {
 	$empty_state_message = __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' );
 }
+
+$filter_mode            = isset( $atts['filter_mode'] ) ? (string) $atts['filter_mode'] : 'default';
+$show_filters_container = 'none' !== $filter_mode;
+$show_category_filters  = 'default' === $filter_mode;
+$show_search            = 'none' !== $filter_mode;
+$search_input_id        = sprintf( 'alynt-pg-search-%s', sanitize_html_class( $grid_signature ) );
+$reset_button_label     = 'search' === $filter_mode
+	? __( 'Clear', 'alynt-products-grid' )
+	: __( 'Reset', 'alynt-products-grid' );
 ?>
 <div class="alynt-pg-container"
 	data-columns="<?php echo esc_attr( $atts['columns'] ); ?>"
@@ -43,69 +52,78 @@ if ( empty( $empty_state_message ) ) {
 		</div>
 	<?php endif; ?>
 
-	<div class="alynt-pg-filters">
-		<div class="alynt-pg-category-filters" role="group" aria-label="<?php esc_attr_e( 'Filter by category', 'alynt-products-grid' ); ?>">
-			<button class="alynt-pg-category-btn active" data-category="all">
-				<?php esc_html_e( 'All', 'alynt-products-grid' ); ?>
+	<?php if ( $show_filters_container ) : ?>
+		<div class="alynt-pg-filters">
+			<?php if ( $show_category_filters ) : ?>
+				<div class="alynt-pg-category-filters" role="group" aria-label="<?php esc_attr_e( 'Filter by category', 'alynt-products-grid' ); ?>">
+					<button class="alynt-pg-category-btn active" data-category="all">
+						<?php esc_html_e( 'All', 'alynt-products-grid' ); ?>
+					</button>
+					<?php
+					$special_cats = array();
+					$regular_cats = array();
+
+					foreach ( $categories as $category ) {
+						if ( in_array( $category->term_id, $special_categories, true ) ) {
+							$special_cats[] = $category;
+						} else {
+							$regular_cats[] = $category;
+						}
+					}
+
+					usort(
+						$special_cats,
+						function ( $a, $b ) {
+							return strcmp( $a->name, $b->name );
+						}
+					);
+					usort(
+						$regular_cats,
+						function ( $a, $b ) {
+							return strcmp( $a->name, $b->name );
+						}
+					);
+
+					foreach ( $special_cats as $category ) :
+						?>
+						<button class="alynt-pg-category-btn alynt-pg-category-special"
+								data-category="<?php echo esc_attr( $category->slug ); ?>"
+								data-category-id="<?php echo esc_attr( $category->term_id ); ?>">
+							<?php echo esc_html( $category->name ); ?>
+							<span class="alynt-pg-category-count"><?php echo '(' . esc_html( $category->count ) . ')'; ?></span>
+						</button>
+						<?php
+					endforeach;
+
+					foreach ( $regular_cats as $category ) :
+						?>
+						<button class="alynt-pg-category-btn"
+								data-category="<?php echo esc_attr( $category->slug ); ?>"
+								data-category-id="<?php echo esc_attr( $category->term_id ); ?>">
+							<?php echo esc_html( $category->name ); ?>
+							<span class="alynt-pg-category-count"><?php echo '(' . esc_html( $category->count ) . ')'; ?></span>
+						</button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $show_search ) : ?>
+				<div class="alynt-pg-search-wrapper">
+					<label class="screen-reader-text" for="<?php echo esc_attr( $search_input_id ); ?>">
+						<?php esc_html_e( 'Search products', 'alynt-products-grid' ); ?>
+					</label>
+					<input type="text"
+							id="<?php echo esc_attr( $search_input_id ); ?>"
+							class="alynt-pg-search"
+							placeholder="<?php echo esc_attr__( 'Search products...', 'alynt-products-grid' ); ?>">
+				</div>
+			<?php endif; ?>
+
+			<button class="alynt-pg-reset-btn">
+				<?php echo esc_html( $reset_button_label ); ?>
 			</button>
-			<?php
-			$special_cats = array();
-			$regular_cats = array();
-
-			foreach ( $categories as $category ) {
-				if ( in_array( $category->term_id, $special_categories, true ) ) {
-					$special_cats[] = $category;
-				} else {
-					$regular_cats[] = $category;
-				}
-			}
-
-			usort(
-				$special_cats,
-				function ( $a, $b ) {
-					return strcmp( $a->name, $b->name );
-				}
-			);
-			usort(
-				$regular_cats,
-				function ( $a, $b ) {
-					return strcmp( $a->name, $b->name );
-				}
-			);
-
-			foreach ( $special_cats as $category ) :
-				?>
-				<button class="alynt-pg-category-btn alynt-pg-category-special"
-						data-category="<?php echo esc_attr( $category->slug ); ?>"
-						data-category-id="<?php echo esc_attr( $category->term_id ); ?>">
-					<?php echo esc_html( $category->name ); ?>
-					<span class="alynt-pg-category-count"><?php echo '(' . esc_html( $category->count ) . ')'; ?></span>
-				</button>
-				<?php
-			endforeach;
-
-			foreach ( $regular_cats as $category ) :
-				?>
-				<button class="alynt-pg-category-btn"
-						data-category="<?php echo esc_attr( $category->slug ); ?>"
-						data-category-id="<?php echo esc_attr( $category->term_id ); ?>">
-					<?php echo esc_html( $category->name ); ?>
-					<span class="alynt-pg-category-count"><?php echo '(' . esc_html( $category->count ) . ')'; ?></span>
-				</button>
-			<?php endforeach; ?>
 		</div>
-
-		<div class="alynt-pg-search-wrapper">
-			<input type="text"
-					class="alynt-pg-search"
-					aria-label="<?php esc_attr_e( 'Search products', 'alynt-products-grid' ); ?>"
-					placeholder="<?php echo esc_attr__( 'Search products...', 'alynt-products-grid' ); ?>">
-		</div>
-
-		<button class="alynt-pg-reset-btn">
-			<?php esc_html_e( 'Reset', 'alynt-products-grid' ); ?>
-		</button>
-	</div>
+	<?php endif; ?>
 
 	<div class="alynt-pg-results-count" aria-live="polite" aria-atomic="true">
 		<span class="alynt-pg-showing">

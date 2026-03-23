@@ -57,6 +57,7 @@ A powerful WooCommerce plugin that displays products in a mobile-responsive grid
 | `categories` | String | '' | Comma-separated category IDs or slugs to include |
 | `special` | String | '' | Comma-separated category IDs or slugs to highlight (appear first with distinct styling) |
 | `per_page` | Integer | 12 | Number of products per page (max 100) |
+| `filter_mode` | String | 'default' | Filter UI mode: `default` (full filters), `search` (search only), or `none` (no filters) |
 | `breakpoint_5` | Integer | 1200 | Breakpoint for 5→4 columns (px) |
 | `breakpoint_4` | Integer | 992 | Breakpoint for 4→3 columns (px) |
 | `breakpoint_3` | Integer | 768 | Breakpoint for 3→2 columns (px) |
@@ -79,6 +80,16 @@ A powerful WooCommerce plugin that displays products in a mobile-responsive grid
 ### 3-column grid with 20 products per page:
 ```
 [alynt_products_grid columns="3" per_page="20"]
+```
+
+### Search-only mode (no category buttons):
+```
+[alynt_products_grid filter_mode="search"]
+```
+
+### No filters at all:
+```
+[alynt_products_grid filter_mode="none"]
 ```
 
 ### Custom responsive breakpoints:
@@ -108,6 +119,16 @@ Each product card displays (in order):
 - **Search field**: Real-time search with 300ms debounce
 - **Reset button**: Clears all filters and search
 - **Dynamic states**: Categories with no matching products are greyed out with (0) count
+
+### Filter Modes
+
+The `filter_mode` attribute controls which filter UI is shown:
+
+| Mode | Category buttons | Search | Button |
+|------|-----------------|--------|--------|
+| `default` | Yes | Yes | Reset |
+| `search` | No | Yes | Clear |
+| `none` | No | No | — |
 
 ### URL Updates
 - Filters automatically update the browser URL with SEO-friendly category slugs
@@ -240,6 +261,12 @@ alynt-products-grid/
 This plugin does not currently expose custom action or filter hooks. See [docs/HOOKS.md](docs/HOOKS.md) for details.
 
 ## Changelog
+
+### Version 1.1.0
+- **Filter mode control**: New `filter_mode` shortcode attribute (`default`, `search`, `none`) to control which filter UI is rendered
+  - `search` mode shows only the search input with a **Clear** button; category count requests are suppressed
+  - `none` mode removes the entire filter container; pagination remains functional
+  - `default` (or no attribute) preserves all existing behavior
 
 ### Version 1.0.1
 - **Improved URL format**: URLs now use SEO-friendly category slugs instead of IDs

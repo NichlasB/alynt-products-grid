@@ -59,13 +59,15 @@ class ALYNT_PG_Shortcode_Renderer {
 				'breakpoint_4' => 992,
 				'breakpoint_3' => 768,
 				'breakpoint_2' => 576,
+				'filter_mode'  => 'default',
 			),
 			$atts,
 			'alynt_products_grid'
 		);
 
-		$atts['columns']  = min( 5, max( 1, intval( $atts['columns'] ) ) );
-		$atts['per_page'] = min( 100, max( 1, intval( $atts['per_page'] ) ) );
+		$atts['columns']     = min( 5, max( 1, intval( $atts['columns'] ) ) );
+		$atts['per_page']    = min( 100, max( 1, intval( $atts['per_page'] ) ) );
+		$atts['filter_mode'] = $this->normalize_filter_mode( $atts['filter_mode'] );
 		$this->enqueue_frontend_assets();
 
 		ob_start();
@@ -85,15 +87,18 @@ class ALYNT_PG_Shortcode_Renderer {
 		$grid_notice_message = '';
 		$grid_notice_type    = 'info';
 		$empty_state_title   = __( 'No products found.', 'alynt-products-grid' );
-		$empty_state_message = __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' );
+		$empty_state_message = $this->get_empty_state_message_for_filter_mode( $atts['filter_mode'] );
 
 		$categories = $this->get_cached_categories();
 
 		if ( is_wp_error( $categories ) ) {
 			$this->log_error( sprintf( 'Failed to load product categories: %s', $categories->get_error_message() ) );
 
-			$categories          = array();
-			$grid_notice_message = __( 'Category filters are temporarily unavailable. You can still browse the products below.', 'alynt-products-grid' );
+			$categories = array();
+
+			if ( 'default' === $atts['filter_mode'] ) {
+				$grid_notice_message = __( 'Category filters are temporarily unavailable. You can still browse the products below.', 'alynt-products-grid' );
+			}
 		}
 
 		$restricted_categories = $this->parse_category_list( $atts['categories'] );
@@ -152,6 +157,40 @@ class ALYNT_PG_Shortcode_Renderer {
 		return $this->products_query_service->normalize_category_ids( explode( ',', $category_list ) );
 	}
 
+	/**
+	 * Normalizes the shortcode filter mode.
+	 *
+	 * @param string $filter_mode Requested filter mode.
+	 * @return string
+	 */
+	private function normalize_filter_mode( $filter_mode ) {
+		$filter_mode = is_string( $filter_mode ) ? sanitize_key( $filter_mode ) : 'default';
+
+		if ( ! in_array( $filter_mode, array( 'default', 'none', 'search' ), true ) ) {
+			return 'default';
+		}
+
+		return $filter_mode;
+	}
+
+	/**
+	 * Returns empty-state guidance for the active filter mode.
+	 *
+	 * @param string $filter_mode Active filter mode.
+	 * @return string
+	 */
+	private function get_empty_state_message_for_filter_mode( $filter_mode ) {
+		switch ( $filter_mode ) {
+			case 'search':
+				return __( 'Try a different search term or clear the search to see more products.', 'alynt-products-grid' );
+			case 'none':
+				return __( 'Try browsing another page to see more products.', 'alynt-products-grid' );
+			case 'default':
+			default:
+				return __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' );
+		}
+	}
+
 	private function enqueue_frontend_assets() {
 		alynt_pg_enqueue_frontend_assets();
 	}
@@ -167,6 +206,7 @@ class ALYNT_PG_Shortcode_Renderer {
 			'per_page'              => min( 100, max( 1, intval( $atts['per_page'] ) ) ),
 			'visible_categories'    => $visible_categories,
 			'restricted_categories' => $restricted_categories,
+			'filter_mode'           => $this->normalize_filter_mode( $atts['filter_mode'] ?? 'default' ),
 		);
 	}
 

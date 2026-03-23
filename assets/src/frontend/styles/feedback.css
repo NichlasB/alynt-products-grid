@@ -165,6 +165,8 @@
 
 @media (prefers-reduced-motion: reduce) {
     .alynt-pg-spinner-inner,
+    .alynt-pg-spinner-small,
+    .alynt-pg-category-filters.is-updating::after,
     .alynt-pg-notification,
     .alynt-pg-product-card,
     .alynt-pg-product-image img,

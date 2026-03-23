@@ -21,11 +21,11 @@ export function updateUrlFromState(instance) {
     params.delete('search');
     params.delete('page');
 
-    if (instance.currentCategories.length > 0) {
+    if (instance.hasCategoryFilters && instance.currentCategories.length > 0) {
         params.set('categories', instance.currentCategories.join(','));
     }
 
-    if (instance.currentSearch) {
+    if (instance.hasSearchField && instance.currentSearch) {
         params.set('search', instance.currentSearch);
     }
 
@@ -45,38 +45,47 @@ export function updateUrlFromState(instance) {
 export function loadStateFromUrl(instance) {
     const urlParams = canUseUrlState(instance) ? new URLSearchParams(window.location.search) : new URLSearchParams();
 
-    const categories = urlParams.get('categories');
-    if (categories) {
-        const catArray = categories.split(',').map((category) => category.trim());
-        if (catArray.length > 0 && !Number.isNaN(Number(catArray[0]))) {
-            const idToSlug = Object.fromEntries(
-                Object.entries(instance.categoryMap).map(([slug, id]) => [id, slug])
-            );
-            instance.currentCategories = catArray
-                .map((id) => idToSlug[parseInt(id, 10)])
-                .filter((slug) => slug);
+    if (instance.hasCategoryFilters) {
+        const categories = urlParams.get('categories');
+        if (categories) {
+            const catArray = categories.split(',').map((category) => category.trim());
+            if (catArray.length > 0 && !Number.isNaN(Number(catArray[0]))) {
+                const idToSlug = Object.fromEntries(
+                    Object.entries(instance.categoryMap).map(([slug, id]) => [id, slug])
+                );
+                instance.currentCategories = catArray
+                    .map((id) => idToSlug[parseInt(id, 10)])
+                    .filter((slug) => slug);
+            } else {
+                instance.currentCategories = catArray.filter((slug) => instance.categoryMap[slug]);
+            }
         } else {
-            instance.currentCategories = catArray.filter((slug) => instance.categoryMap[slug]);
+            instance.currentCategories = [];
         }
     } else {
         instance.currentCategories = [];
     }
 
-    instance.currentSearch = (urlParams.get('search') || '').trim();
+    instance.currentSearch = instance.hasSearchField ? (urlParams.get('search') || '').trim() : '';
 
     const parsedPage = parseInt(urlParams.get('page'), 10);
     instance.currentPage = parsedPage > 0 ? parsedPage : 1;
 
     instance.container.find('.alynt-pg-category-btn').removeClass('active');
-    instance.container.find('.alynt-pg-search').val(instance.currentSearch);
 
-    if (instance.currentCategories.length === 0) {
-        instance.container.find('.alynt-pg-category-btn[data-category="all"]').addClass('active');
-    } else {
-        instance.currentCategories.forEach((categorySlug) => {
-            instance.container.find(`.alynt-pg-category-btn[data-category="${categorySlug}"]`).addClass('active');
-        });
+    if (instance.hasSearchField) {
+        instance.container.find('.alynt-pg-search').val(instance.currentSearch);
     }
 
-    instance.loadProducts(true);
+    if (instance.hasCategoryFilters) {
+        if (instance.currentCategories.length === 0) {
+            instance.container.find('.alynt-pg-category-btn[data-category="all"]').addClass('active');
+        } else {
+            instance.currentCategories.forEach((categorySlug) => {
+                instance.container.find(`.alynt-pg-category-btn[data-category="${categorySlug}"]`).addClass('active');
+            });
+        }
+    }
+
+    instance.loadProducts(instance.shouldRefreshCategoryCounts());
 }

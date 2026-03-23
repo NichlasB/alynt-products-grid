@@ -153,6 +153,11 @@
     text-decoration: none;
 }
 
+.alynt-pg-add-to-cart-btn:focus-visible {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
 .alynt-pg-out-of-stock {
     padding: 0.5rem 1rem;
     background: #6c757d;

@@ -54,6 +54,7 @@ class ALYNT_PG_Ajax_Handler {
 			$search       = $this->get_request_search();
 			$page         = $this->get_request_page();
 			$per_page     = $this->get_grid_per_page( $grid_context );
+			$filter_mode  = $this->get_grid_filter_mode( $grid_context );
 
 			$products_data = $this->products_query_service->get_products_data(
 				array(
@@ -75,7 +76,7 @@ class ALYNT_PG_Ajax_Handler {
 
 			wp_send_json_success(
 				array(
-					'products_html' => $this->render_product_cards_html( $products_data['products'] ),
+					'products_html' => $this->render_product_cards_html( $products_data['products'], $filter_mode ),
 					'total'         => $products_data['total'],
 					'pages'         => $products_data['pages'],
 					'current_page'  => $products_data['current_page'],
@@ -139,11 +140,11 @@ class ALYNT_PG_Ajax_Handler {
 	 * @return string
 	 * @throws Throwable When template rendering fails.
 	 */
-	private function render_product_cards_html( $products ) {
+	private function render_product_cards_html( $products, $filter_mode = 'default' ) {
 		if ( empty( $products ) ) {
 			return $this->render_empty_state_html(
 				__( 'No products found.', 'alynt-products-grid' ),
-				__( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' )
+				$this->get_empty_state_message_for_filter_mode( $filter_mode )
 			);
 		}
 
@@ -276,6 +277,7 @@ class ALYNT_PG_Ajax_Handler {
 			'per_page'              => min( 100, max( 1, intval( $decoded_grid_context['per_page'] ?? 12 ) ) ),
 			'visible_categories'    => $this->sanitize_request_int_list( $decoded_grid_context['visible_categories'] ?? array(), 500 ),
 			'restricted_categories' => $this->sanitize_request_int_list( $decoded_grid_context['restricted_categories'] ?? array(), 500 ),
+			'filter_mode'           => $this->normalize_filter_mode( $decoded_grid_context['filter_mode'] ?? 'default' ),
 		);
 
 		if ( ! hash_equals( $this->sign_grid_context( $grid_context ), $grid_signature ) ) {
@@ -352,6 +354,20 @@ class ALYNT_PG_Ajax_Handler {
 		}
 
 		return $this->get_request_per_page();
+	}
+
+	/**
+	 * Retrieves the filter mode from the grid context.
+	 *
+	 * @param array $grid_context Grid context.
+	 * @return string
+	 */
+	private function get_grid_filter_mode( $grid_context ) {
+		if ( is_array( $grid_context ) && isset( $grid_context['filter_mode'] ) ) {
+			return $this->normalize_filter_mode( $grid_context['filter_mode'] );
+		}
+
+		return 'default';
 	}
 
 	/**
@@ -541,6 +557,40 @@ class ALYNT_PG_Ajax_Handler {
 		ob_start();
 		include ALYNT_PG_PLUGIN_DIR . 'public/partials/empty-state.php';
 		return ob_get_clean();
+	}
+
+	/**
+	 * Normalizes the grid filter mode.
+	 *
+	 * @param string $filter_mode Requested filter mode.
+	 * @return string
+	 */
+	private function normalize_filter_mode( $filter_mode ) {
+		$filter_mode = is_string( $filter_mode ) ? sanitize_key( $filter_mode ) : 'default';
+
+		if ( ! in_array( $filter_mode, array( 'default', 'none', 'search' ), true ) ) {
+			return 'default';
+		}
+
+		return $filter_mode;
+	}
+
+	/**
+	 * Returns empty-state guidance for the active filter mode.
+	 *
+	 * @param string $filter_mode Active filter mode.
+	 * @return string
+	 */
+	private function get_empty_state_message_for_filter_mode( $filter_mode ) {
+		switch ( $this->normalize_filter_mode( $filter_mode ) ) {
+			case 'search':
+				return __( 'Try a different search term or clear the search to see more products.', 'alynt-products-grid' );
+			case 'none':
+				return __( 'Try browsing another page to see more products.', 'alynt-products-grid' );
+			case 'default':
+			default:
+				return __( 'Try a different search term or reset the filters to see more products.', 'alynt-products-grid' );
+		}
 	}
 
 	/**
