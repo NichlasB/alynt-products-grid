@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-03-23
+
+### Added
+- Add URL state management for filter combinations
+- Add AJAX handler class for async product filtering
+- Add settings documentation
+
+### Changed
+- Enhance products grid with URL state and AJAX support
+- Improve frontend grid components
+- Update README with new documentation
+
+### Fixed
+- Improve product grid stability
+
 ## [1.1.0] - 2026-03-22
 
 ### Added

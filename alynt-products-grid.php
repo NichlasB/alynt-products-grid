@@ -3,7 +3,7 @@
  * Plugin Name: Alynt Products Grid
  * Plugin URI: https://alynt.com
  * Description: A WooCommerce mobile-responsive products grid with advanced filtering via shortcode.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Alynt
  * Requires at least: 5.0
  * Requires PHP: 7.4
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'ALYNT_PG_VERSION', '1.1.0' );
+define( 'ALYNT_PG_VERSION', '1.2.0' );
 define( 'ALYNT_PG_MIN_WP_VERSION', '5.0' );
 define( 'ALYNT_PG_MIN_PHP_VERSION', '7.4' );
 define( 'ALYNT_PG_PRODUCT_CATEGORIES_TRANSIENT', 'alynt_pg_product_categories' );
