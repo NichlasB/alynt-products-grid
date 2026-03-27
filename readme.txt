@@ -4,7 +4,7 @@ Tags: woocommerce, products, grid, shortcode, ajax
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes. Use the `columns` attribute together with the breakpoint attributes to cont
 
 == Changelog ==
 
+= 1.2.1 =
+
+* Documentation improvements and formatting enhancements.
+
 = 1.2.0 =
 
 * Added shareable URL state management for filter combinations.
@@ -122,6 +126,10 @@ Yes. Use the `columns` attribute together with the breakpoint attributes to cont
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+
+No breaking changes. Documentation improvements and formatting enhancements.
 
 = 1.2.0 =
 
